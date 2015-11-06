@@ -1,0 +1,6 @@
+
+Summary: Create a string pattern matcher, where wildcards can be specified with _
+         I can assume that _ will not appear in the haystack. The algorithm used
+         must be 'bad character shift' (Boyer-Moore-Horspool)
+
+The AssignmentThree-class takes two parameters: ‹needle› og 
