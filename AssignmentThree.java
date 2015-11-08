@@ -2,9 +2,12 @@ import java.util.*;
 
 public class AssignmentThree {
     public static void main( String[] args ) {
+        
         if ( args.length < 2 ) {
             System.out.println( "Not enough arguments. Requires args: <needle> <haystack>" );
+            System.exit(0);
         }
+        
         String needle = args[0];
         String haystack = args[1];
 

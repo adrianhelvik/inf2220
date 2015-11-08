@@ -4,11 +4,14 @@ all:
 
 clean:
 	rm *.class
+
+c:
+	rm *.class
 	
 test:
 	@echo "Compiling files"
 	javac *.java
 	@echo "Running unit tests"
-	java TestRunner UnitTests
+	java TestRunner TestsForStringSearch
 	@echo "Removing class-files"
 	rm *.class

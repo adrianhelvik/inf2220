@@ -9,7 +9,7 @@ import java.util.*;
  * full class name (with package names prepended) and call its
  * run-method.
  */
-class TestRunner {
+class TestRunner implements Runnable {
     public static void main(String[] args) {
         TestRunner runner = new TestRunner( args[0] );
         
@@ -43,26 +43,42 @@ class TestRunner {
         try {
             return someClass.newInstance();
         } catch (InstantiationException e) {
-            System.out.println("InstantiationException thrown when trying to construct class");
+            System.out.println("--- InstantiationException thrown when trying to construct class ---");
+            e.printStackTrace();
             System.exit(0);
         } catch (IllegalAccessException e) {
-            System.out.println("IllegalAccessException thrown when trying to construct class");
+            System.out.println("--- IllegalAccessException thrown when trying to construct class ---");
+            e.printStackTrace();
             System.exit(0);
         }
 
         return null;
     }
 
-    public boolean run() {
+    public void run() {
         boolean[] successes = new boolean[ this.tests.length ];
         performTests( successes );
         boolean allSuccessful = allSuccessful( successes );
 
         if ( !allSuccessful ) {
+            
+            System.out.println("-------------------");
+            System.out.println("Starting unit tests");
+            System.out.println("-------------------");
+
             log.print();
+
+            System.out.println("-------------------");
+            System.out.println("Unit tests complete");
+            System.out.println("-------------------");
+        
         }
 
-        return allSuccessful;
+        else {
+            System.out.println("------------------------------------------------------------");
+            System.out.println("All unit tests for " + camelCaseToSpaces( testClass.getSimpleName() ) + " passed");
+            System.out.println("------------------------------------------------------------");
+        }
     }
 
     private void performTests( boolean[] successes ) {
@@ -78,15 +94,19 @@ class TestRunner {
             try {
                 pass = (boolean) test.invoke( testClassInstance, new Object[]{} );
             } catch (IllegalAccessException e) {
-                System.out.println("IllegalAccessException thrown");
+                System.out.println("--- IllegalAccessException thrown ---");
+                e.printStackTrace();
+                System.exit(0);
             } catch (InvocationTargetException e) {
-                System.out.println("InvocationTargetException thrown");
+                System.out.println("--- InvocationTargetException thrown ---");
+                e.printStackTrace();
+                System.exit(0);
             }
             
             if ( !pass ) {
-                log.store( "--- FAILURE: \"" + testName +"\"" );
+                log.store( "--- FAILURE: \"" + testName +"\" ---\n" );
             } else {
-                log.store( "--- Success: \"" + testName +"\"" );
+                log.store( "--- Success ---\n");
             }
 
             successes[i] = pass;
