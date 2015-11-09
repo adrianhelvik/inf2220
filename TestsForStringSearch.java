@@ -1,142 +1,468 @@
+import java.lang.reflect.*;
 import java.util.*;
 
 class TestsForStringSearch {
-    /*
-    boolean performWildcardSearchWithNoMatch() {
-        String needle;
-        String haystack;
 
-        needle = "hell_ world";
-        haystack = "Hello there... How'd'ya do?";
+    // TODO: needleIsLongerThanHaystack
 
-        Substring[] res = new StringSearch( needle, haystack ).performSearch();
+    // Current position
 
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-
-        for (int i = 0; i < res.length; i++) {
-            System.out.println("     " + res[i]);
-        }
-
-        return res.length == 0;
-    }
-
-    boolean performSearchWithNoMatch() {
-        String needle;
-        String haystack;
-
-        needle = "hello world";
-        haystack = "Hello there... How'd'ya do?";
-
-        Substring[] res = new StringSearch( needle, haystack ).performSearch();
-
-        return res.length == 0;
-    }
+    //boolean testEnd() { StringSearch search = new StringSearch(); search.needle = "abcde"; search.haystack = ""; System.out.println("STUB"); return false; }
     
-    boolean performSearchWhereNeedleIsSubstringOfHaystack() {
-        String needle;
-        String haystack;
-
-        needle = "sub";
-        haystack = "aaaaaaaaaaaaaasubaaaaaaaaaaa";
-
-        Substring[] res = new StringSearch( needle, haystack ).performSearch();
-
-        return res[0].value().equals("sub");
+    boolean test_search_with_perform_search() {
+        StringSearch search = new StringSearch( "QUERY", "hei QUERY me twice QUERY. Lol"); 
+        
+        Substring[] results = search.getResults();
+        System.out.println( Arrays.asList(results) );
+        
+        return results.length == 2
+            && results[0].start == 4
+            && results[0].end == 9
+            && results[1].start == 19
+            && results[1].end == 24;
     }
 
-    boolean performSearchWhereNeedleAndHaystackAreTheSame() {
-        String needle;
-        String haystack;
+    boolean test_search_with_multiple_results()
+    {
+        
+        StringSearch search = new StringSearch();
 
-        needle = "abcd";
-        haystack = "abcd";
+        search.needle = "abc";
+        //                    3  67  10
+        search.haystack = "oooabcoabc";
+        search.init();
 
-        Substring[] res = new StringSearch( needle, haystack ).performSearch();
-
-        return res.length > 0 && res[0].value().equals("abcd");
-    }
-    
-    boolean performSearchWithOneLetterInNeedleAndHaystackMatching() {
-        String needle;
-        String haystack;
-
-        needle = "a";
-        haystack = "a";
-
-        Substring[] res = new StringSearch( needle, haystack ).performSearch();
-
-        return res.length == 1;
-    }
-    
-    boolean performSimpleSearchWithEmptyHaystackAndNoMatch() {
-        String needle;
-        String haystack;
-
-        needle = "a";
-        haystack = "";
-
-        Substring[] res = new StringSearch( needle, haystack ).performSearch();
-
-        return res.length == 0;
-    }
-
-    boolean performSearchWithWildcard() {
-        String needle;
-        String haystack;
-
-        needle = "hell_ world";
-        haystack = "Hello there... hella world. How'd'ya do?";
-
-        Substring[] res = new StringSearch( needle, haystack ).performSearch();
-
-        System.out.println( Arrays.asList( res ) );
-
-        return res.length > 0;
-    }
-    
-    boolean performMoreAdvancedSearch() {
-        StringSearch search = new StringSearch( "LUCKYDUCKCLUCK", "MUCKYDUXCLUCKDUCKYCLUCKYDUCKMUCKLUCKMCLUCKYDUCKCLUCKDUXCLUCKX" );
-        Substring[] searchResults = search.performSearch();
-        int length = searchResults.length;
-
-        return length > 0;
-    }
-    */
-    
-    boolean performSimpleSearch() {
-        Substring[] results = new StringSearch("e", "Hello").getResult();
-        return results.length > 0;
-    }
-    
-    boolean needleIsStartOfHaystack() {
-        Substring[] results = new StringSearch("Hel", "Hello").getResult();
-        return results.length > 0;
-    }
-    
-    boolean needleAndHaystackAreEqual() {
-        return new StringSearch("hello", "hello").getResult().length > 0;
-    }
-    
-    boolean oneLetterNeedleAndHaystackAreEqual() {
-        return new StringSearch("a", "a").getResult().length > 0;
-    }
-    
-    boolean doesWildcardMatchUnderscores() {
-        return StringSearch.isWildCard( '_' );
-    }
-    
-    boolean doesWildcardNotMatchAnyOtherCharacters() {
-        boolean res = true;
-
-        for (int i = 0; i < 256; i++) {
-            if ( ( char ) i != '_' ) {
-                res &= !StringSearch.isWildCard( (char) i );
+        while ( !search.end() ) {
+            search.printIntermediateSearch();
+            if ( search.matchFound() ) {
+                search.addResults();
+                System.out.println("Found match. Results so far: " + Arrays.asList( search.getResults() ) );
             }
+            search.increment();
         }
+
+        Substring[] subs = search.getResults();
+        
+        boolean res = true;
+        
+        res &= subs[0].start == 3;
+        System.out.println(res);
+        res &= subs[0].end   == 6;
+        System.out.println(res);
+        res &= subs[1].start == 7;
+        System.out.println(res);
+        res &= subs[1].end   == 10;
+        System.out.println(res);
 
         return res;
+    }
+
+    boolean test_end_in_loop() {
+
+        StringSearch search = new StringSearch();
+        search.needle = "a";
+        search.haystack = "b";
+        search.init();
+
+        try {
+            while ( !search.end() ) {
+                search.printIntermediateSearch();
+
+                System.out.println("Incrementing");
+                search.increment();
+            }
+
+            return true;
+        } catch ( Exception e ) {
+            System.out.println("Exception thrown in test_end_in_loop");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    boolean testEndWithNeedleOfLengthThree()
+    {
+        StringSearch search = new StringSearch();
+
+        search.needle = "yyy";
+        search.haystack = "xxxxxxxx";
+        search.init();
+
+        for (int i = 0; search.haystackIndex() < search.haystack.length(); i++) {
+            search.printIntermediateSearch();
+
+            search.printOffsetAndCounter();
+
+            if ( search.end() ) {
+                System.out.println("search.end() was true before completion");
+                return false;
+            }
+
+            search.increment();
+        }
+        
+        search.printIntermediateSearch();
+
+        if ( !search.end() ) {
+            System.out.println("search.end() was untrue when completed");
+            return false;
+        }
+        
+        return true;
+    }
+
+    boolean testEndWithNeedleOfLengthOne()
+    {
+
+        StringSearch search = new StringSearch();
+
+        search.needle = "y";
+        search.haystack = "xxxxxx";
+        search.init();
+
+        for (int i = 0; i < search.haystack.length(); i++) {
+            search.printIntermediateSearch();
+            if ( search.end() ) {
+                return false;
+            }
+            search.increment();
+        }
+
+        if ( !search.end() ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    boolean test_manual_wildcard_search()
+    {
+
+        //
+        // BUG: When a wildcard is found, the maximum offset increment is changed for successive 
+        //
+
+        boolean result = false;
+
+        StringSearch search = new StringSearch();
+
+        search.needle = "ba_a";
+        search.haystack = "xxbamaxx";
+        search.init();
+
+        if ( search.matchFound() ) search.addResults();
+        search.printIntermediateSearch();
+        search.checkForWildcard();
+        search.increment();
+
+        if ( search.matchFound() ) search.addResults();
+        search.printIntermediateSearch();
+        search.checkForWildcard();
+        search.increment();
+        
+        if ( search.matchFound() ) search.addResults();
+        search.printIntermediateSearch();
+        search.checkForWildcard();
+        search.increment();
+        
+        if ( search.matchFound() ) search.addResults();
+        search.printIntermediateSearch();
+        search.checkForWildcard();
+        search.increment();
+        
+        if ( search.matchFound() ) search.addResults();
+        search.printIntermediateSearch();
+        search.checkForWildcard();
+        search.increment();
+        
+        if ( search.matchFound() ) search.addResults();
+        search.printIntermediateSearch();
+        search.checkForWildcard();
+        search.increment();
+        
+        if ( search.matchFound() ) search.addResults();
+        search.printIntermediateSearch();
+        search.checkForWildcard();
+        search.increment();
+        
+        if ( search.matchFound() ) search.addResults();
+        search.printIntermediateSearch();
+        search.checkForWildcard();
+
+        result = search.getResults().length > 0 && search.getResults()[0].value().equals( "bama" );
+        
+        return result;
+    }
+
+    boolean test_more_complex_manual_search()
+    {
+
+        //
+        // BUG: When a match has been found, incrementation is 1 step too little
+        //
+
+        StringSearch search = new StringSearch();
+        search.needle = "QUERY";
+        search.haystack = "kkkkkQUERYssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss";
+        search.init();
+
+        for ( int i = 0; i < 10; i++ ) {
+            search.printIntermediateSearch();
+            if ( search.matchFound() ) {
+                search.addResults();
+            }
+            search.increment();
+        }
+
+        search.printResults();
+
+        return search.getResults()[0].value().equals("QUERY");
+    }
+
+    boolean testSimpleManualSearch() 
+    {
+
+        StringSearch search = new StringSearch();
+
+        search.needle = "abc";
+        search.haystack = "abc";
+        search.init();
+
+        search.printIntermediateSearch();
+        search.increment();
+        search.printIntermediateSearch();
+        search.increment();
+        search.printIntermediateSearch();
+
+        return search.matchFound();
+    }
+
+    boolean testLuckyDuck3rdLetter() 
+    {
+        boolean result = true;
+
+        StringSearch search = new StringSearch();
+
+        search.needle = "LUCKYDUCKCLUCK";
+        search.haystack = "MUCKYDUXCLUCKDUCKYCLUCKYDUCKMUCKLUCKMCLUCKYDUCKCLUCKDUXCLUCKX";
+        search.init();
+
+        /*
+           search.printNeedleAndHaystack();
+           search.printOffsetAndCounter();
+           search.printIndexes();
+           search.printLetters();
+           */
+
+        search.printIntermediateSearch();
+        search.printLetters();
+        
+        search.increment();
+        
+        search.printIntermediateSearch();
+        search.printLetters();
+        
+        search.increment();
+        
+        // Start: Matching characters
+
+        search.printIntermediateSearch();
+        search.printLetters();
+
+        search.increment();
+        
+        search.printIntermediateSearch();
+        search.printLetters();
+
+        search.increment();
+        
+        search.printIntermediateSearch();
+        search.printLetters();
+
+        search.increment();
+        
+        search.printIntermediateSearch();
+        search.printLetters();
+
+        search.increment();
+        
+        search.printIntermediateSearch();
+        search.printLetters();
+
+        // End: Matching characters
+
+        search.increment();
+        
+        search.printIntermediateSearch();
+        search.printLetters();
+
+        search.printNeedleAndHaystack();
+        search.printOffsetAndCounter();
+        search.printIndexes();
+        search.printLetters();
+
+        result &= search.needleLetter() == 'K';
+        result &= search.haystackLetter() == 'Y';
+
+        return result;
+    }
+
+    boolean testLuckyDuck2ndLetter() 
+    {
+        boolean result = true;
+
+        StringSearch search = new StringSearch();
+
+        search.needle = "LUCKYDUCKCLUCK";
+        search.haystack = "MUCKYDUXCLUCKDUCKYCLUCKYDUCKMUCKLUCKMCLUCKYDUCKCLUCKDUXCLUCKX";
+        search.init();
+
+        search.printIntermediateSearch();
+        search.increment();
+        search.printIntermediateSearch();
+
+        result &= search.needleLetter() == 'K';
+        result &= search.haystackLetter() == 'C';
+
+        return result;
+    }
+
+    boolean check_if_jump_is_correct_when_first_queried_letters_dont_match2() 
+    {
+
+        StringSearch search = new StringSearch();
+        search.needle = "abcd";
+        search.haystack = "xxxcxxxxxxxx";
+        search.init();
+
+        search.printBadCharShift();
+
+        search.printIntermediateSearch();
+        search.increment();
+        search.printIntermediateSearch();
+
+        return search.counter == 1;
+    }
+
+    boolean check_if_jump_is_correct_when_first_queried_letters_dont_match1() 
+    {
+
+        StringSearch search = new StringSearch();
+        search.needle = "abc";
+        search.haystack = "xxxxxxxxxxx";
+        search.init();
+
+        search.printIntermediateSearch();
+        search.increment();
+        search.printIntermediateSearch();
+
+        return search.counter == search.needle.length();
+    }
+
+    boolean check_if_jump_is_correct_when_first_queried_letters_match() 
+    {
+
+        StringSearch search = new StringSearch();
+        search.needle = "abc";
+        search.haystack = "abc";
+        search.init();
+
+        search.printIntermediateSearch();
+        search.increment();
+        search.printIntermediateSearch();
+
+        return search.needleIndex() == search.haystackIndex() && search.haystackIndex() == search.needle.length() - 2;
+    }
+
+    boolean skipsSameNumberOfLettersAsLengthOfNeedleIfNoMatchAtFirst() 
+    {
+
+        StringSearch search = new StringSearch();
+
+        search.needle = "abc";
+        search.haystack = "123456789xxxxxxx";
+        search.init();
+
+        search.printIntermediateSearch();
+        search.increment();
+        search.printIntermediateSearch();
+
+        return search.counter == search.needle.length();
+    }
+
+    boolean letterAtNeedlesLengthInHaystackIsFirstToBeQueried()
+    {
+        boolean result = true;
+
+        StringSearch search = new StringSearch();
+
+        search.needle = "LUCKYDUCKCLUCK";
+        search.haystack = "MUCKYDUXCLUCKDUCKYCLUCKYDUCKMUCKLUCKMCLUCKYDUCKCLUCKDUXCLUCKX";
+        search.init();
+
+        search.printNeedleAndHaystack();
+        search.printOffsetAndCounter();
+        search.printIndexes();
+        search.printLetters();
+
+        search.printIntermediateSearch();
+
+        result &= search.haystackLetter() == search.haystack.charAt( search.needle.length() - 1 );
+
+        return result;
+    }
+
+    boolean lastLetterOfNeedleIsFirstToBeQueried()
+    {
+        boolean result = true;
+
+        StringSearch search = new StringSearch();
+
+        search.needle = "LUCKYDUCKCLUCK";
+        search.haystack = "MUCKYDUXCLUCKDUCKYCLUCKYDUCKMUCKLUCKMCLUCKYDUCKCLUCKDUXCLUCKX";
+        search.init();
+
+        search.printNeedleAndHaystack();
+        search.printOffsetAndCounter();
+        search.printIndexes();
+        search.printLetters();
+
+        search.printIntermediateSearch();
+
+        result &= search.needleLetter() == search.needle.charAt( search.needle.length() - 1 );
+
+        return result;
+    }
+
+    boolean testInitBadCharShift()
+    {
+        StringSearch search = new StringSearch();
+
+        search.needle = "LUCKYDUCKCLUCK";
+        search.haystack = "MUCKYDUXCLUCKDUCKYCLUCKYDUCKMUCKLUCKMCLUCKYDUCKCLUCKDUXCLUCKX";
+
+        search.init();
+
+        System.out.println("Checking that bad char shift is ok");
+        search.printBadCharShift();
+
+        boolean result = true;
+
+        if ( search.badCharShift[ 0 ] != 14 )
+            result = false;
+
+        if ( search.badCharShift['C'] != 1 )
+            result = false;
+
+        if ( search.badCharShift['D'] != 8 )
+            result = false;
+
+        if ( search.badCharShift['K'] != 5 )
+            result = false;
+
+        if ( search.badCharShift['L'] != 3 )
+            result = false;
+
+        return result;
     }
 }

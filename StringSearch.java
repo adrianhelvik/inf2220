@@ -8,7 +8,10 @@ public class StringSearch {
     int[] badCharShift;
     String needle;
     String haystack;
-    List<Substring> result;
+    List<Substring> results;
+    boolean wildcardEncountered = false;
+    int counterAtWildcardEncounter = -1;
+    int wildcardPosition;
 
     int counter;
     int offset;
@@ -17,66 +20,59 @@ public class StringSearch {
 
         this.needle = needle;
         this.haystack = haystack;
-        this.badCharShift = initBadCharShift();
-        this.result = new LinkedList<>();
         
-        performSearch(); // populates result
-    }
+        init(); // set badCharShift, results, counter and offset
 
-    int[] initBadCharShift() {
-        this.badCharShift = new int[256];
+        performSearch(); // populates results
+    }
+    
+    // For testing purposes
+    StringSearch() { }
+
+    void init() {
+        initBadCharShift();
         
-        for (int i = 0; i < badCharShift.length; i++) {
-            _iterations++;
-            _bcsIterations++;
-            badCharShift[i] = (char) ( needle.length() );
-        }
-
-        for (int i = 0; i < needle.length(); i++) {
-            _iterations++;
-            _bcsIterations++;
-
-            int jumpLength = i + 1;
-            char ch = needle.charAt(i);
-
-            setJumpLength( ch, jumpLength );
-        }
-
-        printJumpLengths();
-        new Scanner(System.in).nextLine();
-
-        return badCharShift;
-    }
-
-    void setJumpLength( char ch, int jumpLength ) {
-
-        if (badCharShift[ ch ] > jumpLength )
-            badCharShift[ ch ] = (char) jumpLength;
-    }
-
-    void printJumpLengths() {
-        System.out.print("Jump lengths: ");
-        for (int i = 0; i < needle.length(); i++) {
-            System.out.print( needle.charAt(i) + ":" + badCharShift[ needle.charAt(i) ] + " ");
-        }
-        System.out.println("Other: " + badCharShift[0]);
+        this.results = new LinkedList<>();
+        initCounter();
+        resetOffset();
     }
 
     private void performSearch() {
 
-        initCounter();
-        initOffset();
-
         while ( !end() ) {
 
-            // System.out.println("needle letter: '" + needleChar() + "' haystack letter: '" + haystackChar() + "'" );
-
             if ( matchFound() )
-                addResult();
+                addResults();
+
+            checkForWildcard();
 
             increment();
             
-            new Scanner(System.in).nextLine();
+        }
+    }
+
+    void checkForWildcard() {
+        if ( wildcard() ) {
+            wildcardEncountered = true;
+            wildcardPosition = offset;
+        }
+    }
+
+    boolean matchFound() {
+        return offset == 0 && letterMatch();
+    }
+
+    void addResults() {
+        results.add( new Substring( haystack, counter, counter + needle.length() ) );
+    }
+
+    int getJumpLength( char ch ) {
+        if ( ch == '_' ) {
+            throw new RuntimeException( "Wild cards do not have jump lengths!" );
+        }
+
+        else {
+            return badCharShift[ ch ];
         }
     }
 
@@ -84,82 +80,34 @@ public class StringSearch {
         this.counter = 0;
     }
 
-    void initOffset() {
-        this.offset = needle.length() - 1;
-    }
+    //
+    // Tested
+    //
 
-    void increment() {
-        System.out.println("Incrementing...");
-        System.out.println("... offset=" + offset);
-        System.out.println("... counter=" + counter);
+    void initBadCharShift() {
+        this.badCharShift = new int[256];
         
-        if ( letterMatch() && ! matchFound() ) {
-            nextNeedleLetter();
-        } else if ( noMoreNeedleLetters() ) {
-            nextHaystackSegment();
-        } else {
-            throw new RuntimeException( "SHOULD NEVER HAPPEN!" );
+        for (int i = 0; i < badCharShift.length; i++) {
+            badCharShift[i] = (char) ( needle.length() );
         }
-        
-        System.out.println("... offset=" + offset);
-        System.out.println("... counter=" + counter);
+
+        for (int i = needle.length() - 1; i >= 0; i--) {
+
+            char ch = needle.charAt(i);
+            int jumpLength = needle.length() - 1 - i;
+
+            setJumpLength( ch, jumpLength );
+        }
     }
 
-    void nextHaystackSegment() {
-        counter += badCharShift[ needle.charAt( offset ) ];
-    }
-
-    void nextNeedleLetter() {
-        offset--;
-    }
-
-    void resetOffset() {
-        this.offset = needle.length() - 1;
-    }
-
-    boolean noMoreNeedleLetters() {
-        return offset == 0;
-    }
-
-    boolean letterMatch() {
-        System.out.println("Letters matched: " + needleChar());
-        return needleChar() == haystackChar();
-    }
-
-    char needleChar() {
-        return needle.charAt( offset );
-    }
-
-    char haystackChar() {
-        return haystack.charAt( counter + offset );
-    }
-    
-    void addResult() {
-        result.add( new Substring( haystack, counter, needle.length() ) );
-    }
-
-    boolean matchFound() {
-        return offset == 0 && needle.charAt( offset ) == haystack.charAt( counter + offset );
+    // tested with bad char shift
+    void setJumpLength( char ch, int jumpLength ) {
+        if ( jumpLength < badCharShift[ ch ] && jumpLength != 0 )
+            badCharShift[ ch ] = jumpLength;
     }
 
     boolean end() {
-        boolean result = ( offset == needle.length() - 1 && counter >= haystack.length() - needle.length() + 1 );
-
-        System.out.println(" is end reached? " + result);
-
-        return result;
-    }
-
-    static boolean isWildCard(char letter) {
-        boolean wildcard;
-
-        if (letter == '_') {
-            wildcard = true;
-        } else {
-            wildcard = false;
-        }
-        
-        return wildcard;
+        return haystackIndex() >= haystack.length();
     }
 
     //
@@ -168,7 +116,11 @@ public class StringSearch {
 
     public String getNeedle() { return needle; }
     public String getHaystack() { return haystack; }
-    public Substring[] getResult() { return result.toArray( new Substring[0] ); }
+    public Substring[] getResults() { return results.toArray( new Substring[0] ); }
+    int needleIndex() { return offset; }
+    char needleLetter() { return needle.charAt( needleIndex() ); }
+    int haystackIndex() { return counter + offset; }
+    char haystackLetter() { return haystack.charAt( haystackIndex() ); }
 
     //
     // Overrides
@@ -176,6 +128,143 @@ public class StringSearch {
 
     @Override
     public String toString() {
-        return Arrays.asList(result).toString();
+        return Arrays.asList(results).toString();
+    }
+    
+    //
+    // Helpers
+    //
+    
+    boolean letterMatch() {
+        return ( needleLetter() == haystackLetter() ) || wildcard();
+    }
+
+    void increment() {
+
+        if ( letterMatch() && ! matchFound() ) {
+
+            nextNeedleLetter();
+        } else {
+            
+            nextHaystackSegment();
+        }
+    }
+
+    void nextHaystackSegment() {
+        resetOffset();
+
+        if ( wildcardEncountered ) {
+            counter += wildcardPosition;
+            wildcardEncountered = false;
+        }
+        else {
+            if ( haystackIndex() < haystack.length() ) {
+                System.out.println( counter );
+                counter += badCharShift[ haystackLetter() ];
+            }
+        }
+    }
+
+    void nextNeedleLetter() {
+        offset--;
+    }
+
+    void resetOffset() {
+        offset = needle.length() - 1;
+    }
+
+    boolean noMoreNeedleLetters() {
+        return offset == 0;
+    }
+
+    boolean counterOverflow() {
+        boolean counterOverflow = counter > counterMax();
+        return counterOverflow;
+    }
+
+    int counterMax() {
+        return haystack.length() - needle.length();
+    }
+
+    boolean offsetAtStart() {
+        boolean offsetStart = offset == needle.length() - 1;
+        return offsetStart;
+    }
+
+    boolean wildcard() {
+        boolean wildcard = needleLetter() == '_';
+        return needleLetter() == '_';
+    }
+
+    //
+    // Test printing
+    //
+
+    void printNeedleAndHaystack() {
+        System.out.println("needle=\"" + needle + "\" haystack=\"" + haystack + "\"");
+    }
+
+    void printLetters() {
+        System.out.println("n=" + needleLetter() + " h=" + haystackLetter());
+    }
+
+    void printOffsetAndCounter() {
+        System.out.println("offset=" + offset + " counter=" + counter);
+    }
+
+    void printIndexes() {
+        System.out.println("ni=" + needleIndex() + " hi=" + haystackIndex());
+    }
+
+    void printBadCharShift() {
+        HashMap<Character, Integer> map = new HashMap<>();
+        
+        for (int i = 0; i < needle.length(); i++) {
+            map.put(needle.charAt(i), badCharShift[ needle.charAt(i) ]);
+        }
+
+        System.out.print("Bad char shift: ");
+        for (char ch : map.keySet()) {
+            System.out.print(ch + "->" + map.get(ch) + " ");
+        }
+
+        System.out.println("other->" + badCharShift[0]);
+        System.out.println();
+    }
+
+
+    void printIntermediateSearch() {
+
+        String res = "";
+        
+        res += haystack + "\n";
+        
+        for (int i = 0; i < haystackIndex(); i++) {
+            res += " ";
+        }
+
+        res += ".\n";
+
+        for (int i = 0; i < counter; i++) {
+            res += " ";
+        }
+
+        res += needle + "\n";
+        
+        System.out.println( res );
+    }
+
+    void printResults() {
+        String res = "";
+
+        res = "results=";
+
+        if (results == null)
+            res += null;
+        else {
+            res += Arrays.asList(results);
+        }
+
+        System.out.println(res);
     }
 }

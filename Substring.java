@@ -7,6 +7,8 @@ public class Substring {
         this.start = start;
         this.end = end;
         this.string = string;
+
+        string.substring( start, end ); // will cause any exception that might happen
     }
 
     public String value() {

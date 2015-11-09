@@ -62,21 +62,21 @@ class TestRunner implements Runnable {
 
         if ( !allSuccessful ) {
             
-            System.out.println("-------------------");
-            System.out.println("Starting unit tests");
-            System.out.println("-------------------");
+            System.out.println("--------------------------");
+            System.out.println("Start of unit test results");
+            System.out.println("--------------------------");
 
             log.print();
 
-            System.out.println("-------------------");
-            System.out.println("Unit tests complete");
-            System.out.println("-------------------");
+            System.out.println("--------------------------");
+            System.out.println("Unit test results complete");
+            System.out.println("--------------------------");
         
         }
 
         else {
             System.out.println("------------------------------------------------------------");
-            System.out.println("All unit tests for " + camelCaseToSpaces( testClass.getSimpleName() ) + " passed");
+            System.out.println("All unit tests for '" + camelCaseToSpaces( testClass.getSimpleName() ) + "' passed");
             System.out.println("------------------------------------------------------------");
         }
     }
@@ -88,32 +88,49 @@ class TestRunner implements Runnable {
 
             String testName = camelCaseToSpaces( test.getName() );
 
-            System.out.println("--- Executing test \"" + testName + "\" ---");
-            log.store("Performing test \"" + testName + "\"");
-            boolean pass = false;
 
-            try {
-                pass = (boolean) test.invoke( testClassInstance, new Object[]{} );
-            } catch (IllegalAccessException e) {
-                System.out.println("--- IllegalAccessException thrown ---");
-                e.printStackTrace();
-                System.exit(0);
-            } catch (InvocationTargetException e) {
-                System.out.println("--- InvocationTargetException thrown ---");
-                e.printStackTrace();
-                System.exit(0);
-            }
-            
-            if ( !pass ) {
-                log.store( "--- FAILURE: \"" + testName +"\" ---\n" );
-                return;
-            } else {
-                log.store( "--- Success ---\n");
+            if ( shouldBeTested( test ) ) {
+                
+                clearScreen();
+
+                System.out.println("--- Executing test \"" + testName + "\" ---\n");
+                boolean pass = performTest( test );
+
+                if ( !pass ) {
+                    log.store( "--- FAILURE: \"" + testName +"\" ---" );
+                    return;
+                } else {
+                    log.store( "--- Success: \"" + testName + "\" ---");
+                }
+
+                successes[i] = pass;
             }
 
-            successes[i] = pass;
+            else {
+                successes[i] = true;
+            }
         }
 
+    }
+
+    boolean shouldBeTested( Method test ) {
+        return ! test.getName().toLowerCase().startsWith("ignore");
+    }
+
+    private boolean performTest(Method test) {
+        boolean pass = false;
+
+        try {
+            pass = (boolean) test.invoke( testClassInstance, new Object[]{} );
+        } catch (IllegalAccessException e) {
+            System.out.println("--- IllegalAccessException thrown ---");
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            System.out.println("--- InvocationTargetException thrown ---");
+            e.printStackTrace();
+        }
+
+        return pass;
     }
 
     private String camelCaseToSpaces(String original) {
@@ -128,7 +145,7 @@ class TestRunner implements Runnable {
         res += ( chArr[0] + "" ).toUpperCase();
 
         for (int i = 1; i < original.length(); i++) {
-            if ( Character.isUpperCase( chArr[i] )) {
+            if ( Character.isUpperCase( chArr[i] ) || isNumber( chArr[i] ) ) {
                 res += " " + ( chArr[i] + "" ).toLowerCase();
             } else if ( chArr[i] == '_' ) {
                 res += " ";
@@ -144,6 +161,16 @@ class TestRunner implements Runnable {
         for (boolean b : successes)
             if ( !b ) return false;
         return true;
+    }
+
+    private void clearScreen() {
+        for (int i = 0; i < 3; i++) {
+            System.out.println();
+        }
+    }
+
+    private boolean isNumber(char ch) {
+        return ch >= '0' && ch <= '9';
     }
 }
 
