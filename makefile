@@ -9,6 +9,7 @@ c:
 	rm *.class
 	
 test:
+	@clear
 	@echo "Compiling files"
 	javac *.java
 	@echo "Running unit tests"

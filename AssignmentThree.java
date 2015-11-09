@@ -13,9 +13,11 @@ public class AssignmentThree {
 
         StringSearch search = new StringSearch( needle, haystack );
 
-        System.out.println( "Length of haystack:   " + haystack.length() );
-        System.out.println( "Length of needle:     " + needle.length() );
-        System.out.println( "Number of iterations: " + search._iterations );
+        System.out.println( "Length of haystack:                  " + haystack.length() );
+        System.out.println( "Length of needle:                    " + needle.length() );
+        System.out.println( "Number of iterations:                " + search._iterations );
+        System.out.println( "Where # to assign badCharacterShift: " + search._bcsIterations );
+        System.out.println( "# of iterations - bcs array init:    " + ( search._iterations - search._bcsIterations ) );
 
         System.out.println( "Result: " + search );
     }

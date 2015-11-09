@@ -28,7 +28,7 @@ class TestRunner implements Runnable {
         this.tests = testClass.getDeclaredMethods();
     }
 
-    public Class tryFindClass( String className ) {
+    public Class<?> tryFindClass( String className ) {
         try {
             return Class.forName( className );
         } catch ( ClassNotFoundException e ) {
@@ -39,7 +39,7 @@ class TestRunner implements Runnable {
         return null;
     }
 
-    public Object tryCreateInstance(Class someClass) {
+    public Object tryCreateInstance(Class<?> someClass) {
         try {
             return someClass.newInstance();
         } catch (InstantiationException e) {
@@ -83,11 +83,12 @@ class TestRunner implements Runnable {
 
     private void performTests( boolean[] successes ) {
 
-        for (int i = 0; i < tests.length; i++) {
+        for (int i = tests.length - 1; i >= 0; i--) {
             Method test = tests[i];
 
             String testName = camelCaseToSpaces( test.getName() );
 
+            System.out.println("--- Executing test \"" + testName + "\" ---");
             log.store("Performing test \"" + testName + "\"");
             boolean pass = false;
 
@@ -105,6 +106,7 @@ class TestRunner implements Runnable {
             
             if ( !pass ) {
                 log.store( "--- FAILURE: \"" + testName +"\" ---\n" );
+                return;
             } else {
                 log.store( "--- Success ---\n");
             }
