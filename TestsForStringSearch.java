@@ -9,11 +9,83 @@ class TestsForStringSearch {
 
     //boolean testEnd() { StringSearch search = new StringSearch(); search.needle = "abcde"; search.haystack = ""; System.out.println("STUB"); return false; }
     
+    boolean test_search_with_multiple_separated_wildcards2() {
+        
+        StringSearch search = new StringSearch( "H_l_o", "Hello-there-Heljo-man" );
+
+        Substring[] results = search.getResults();
+        System.out.println( Arrays.asList( results ) );
+
+        return results.length == 2
+            && results[0].value().equals( "Hello" )
+            && results[1].value().equals( "Heljo" );
+    }
+
+    boolean test_search_with_multiple_separated_wildcards2_manual_for_debugging() {
+
+        //
+        // BUG: When a wildcard is included in the needle, 
+        //
+
+        String needle = "H_l_o";
+        String haystack = "Hello-there-Heljo-man";
+
+        StringSearch search = new StringSearch();
+        search.needle = needle;
+        search.haystack = haystack;
+        search.init();
+
+        while ( !search.end() ) {
+            
+            search.printIntermediateSearch();
+
+            if ( search.matchFound() ) {
+                System.out.println("FOUND MATCH");
+                search.addResults();
+            }
+
+            search.checkForWildcard();
+
+            search.increment();
+        }
+
+        Substring[] results = search.getResults();
+
+        return results.length == 2
+            && results[0].value().equals( "Hello" )
+            && results[1].value().equals( "Heljo" );
+    }
+
+    boolean test_search_with_multiple_separated_wildcards() {
+
+        StringSearch search = new StringSearch( "A_B_C_D", "lol man --- blablaAxBxCxDsdasdad and AoBsCdDwas" );
+
+        Substring[] results = search.getResults();
+        System.out.println( Arrays.asList( results ) );
+
+        return results.length == 2
+            && results[0].value().equals( "AxBxCxD" )
+            && results[1].value().equals( "AoBsCdD" );
+    }
+
+    boolean test_search_with_multiple_consecutive_wildcards() {
+
+        StringSearch search = new StringSearch( "b__e", "bike and babe and bile" );
+
+        Substring[] results = search.getResults();
+        System.out.println( Arrays.asList( results ) );
+
+        return results.length == 3
+            && results[0].value().equals( "bike" )
+            && results[1].value().equals( "babe" )
+            && results[2].value().equals( "bile" );
+    }
+    
     boolean test_search_with_perform_search() {
         StringSearch search = new StringSearch( "QUERY", "hei QUERY me twice QUERY. Lol"); 
         
         Substring[] results = search.getResults();
-        System.out.println( Arrays.asList(results) );
+        System.out.println( Arrays.asList( results ) );
         
         return results.length == 2
             && results[0].start == 4

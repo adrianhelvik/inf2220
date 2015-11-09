@@ -15,8 +15,20 @@ public class Substring {
         return string.substring( start, end );
     }
 
+    private String shortenString( String s, int len ) {
+        String res = "";
+
+        for ( int i = 0; i < len - 3; i++ ) {
+            res += s.charAt(i);
+        }
+
+        res += "...";
+
+        return res;
+    }
+
     @Override
     public String toString() {
-        return "Substring \"" + string + "\"[" + start + "," + end + "]: \"" + string.substring( start, end ) + "\"";
+        return "Substring \"" + shortenString( string, 10 ) + "\"[" + start + "," + end + "]: \"" + string.substring( start, end ) + "\"";
     }
 }

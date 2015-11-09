@@ -41,10 +41,11 @@ public class StringSearch {
 
         while ( !end() ) {
 
-            if ( matchFound() )
-                addResults();
-
             checkForWildcard();
+
+            if ( matchFound() ) {
+                addResults();
+            }
 
             increment();
             
@@ -142,10 +143,8 @@ public class StringSearch {
     void increment() {
 
         if ( letterMatch() && ! matchFound() ) {
-
             nextNeedleLetter();
         } else {
-            
             nextHaystackSegment();
         }
     }
@@ -159,7 +158,6 @@ public class StringSearch {
         }
         else {
             if ( haystackIndex() < haystack.length() ) {
-                System.out.println( counter );
                 counter += badCharShift[ haystackLetter() ];
             }
         }
