@@ -1,18 +1,10 @@
-
 all:
 	javac *.java
 
-clean:
+test:
+	javac *.java
+	java TestRunner AssignmentThreeTests
 	rm *.class
 
-c:
-	rm *.class
-	
-test:
-	@clear
-	@echo "Compiling files"
-	javac *.java
-	@echo "Running unit tests"
-	java TestRunner TestsForStringSearch
-	@echo "Removing class-files"
+clean:
 	rm *.class

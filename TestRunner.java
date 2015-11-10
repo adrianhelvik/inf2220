@@ -83,6 +83,8 @@ class TestRunner implements Runnable {
 
     private void performTests( boolean[] successes ) {
 
+        int id = 0;
+
         for (int i = tests.length - 1; i >= 0; i--) {
             Method test = tests[i];
 
@@ -90,6 +92,8 @@ class TestRunner implements Runnable {
 
 
             if ( shouldBeTested( test ) ) {
+
+                testName = ++id + ": " + testName;
                 
                 clearScreen();
 
@@ -146,7 +150,10 @@ class TestRunner implements Runnable {
 
         for (int i = 1; i < original.length(); i++) {
             if ( Character.isUpperCase( chArr[i] ) || isNumber( chArr[i] ) ) {
-                res += " " + ( chArr[i] + "" ).toLowerCase();
+                if ( i > 0 && res.charAt( i - 1 ) != ' ' ) {
+                    res += " ";
+                }
+                res += ( chArr[i] + "" ).toLowerCase();
             } else if ( chArr[i] == '_' ) {
                 res += " ";
             } else {
