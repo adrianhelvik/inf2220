@@ -3,7 +3,7 @@ all:
 
 test:
 	javac *.java
-	java TestRunner AssignmentThreeTests
+	java TestRunner TestStringSearch
 	rm *.class
 
 clean:

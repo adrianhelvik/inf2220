@@ -4,7 +4,6 @@ Readme for assignment 3 in INF2220 for Adrian Ødeby Helvik
 How to run
 ----------
 > make && java AssignmentThree <needle> <haystack> (<--test>)
-If 
 
 How to test
 -----------
@@ -13,3 +12,4 @@ prefix its name with IGNORE (case insensitive).
 
 Explanation of algorithm
 ------------------------
+The search algorithm is 'bad character shift'

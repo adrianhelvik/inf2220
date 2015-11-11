@@ -90,7 +90,6 @@ class TestRunner implements Runnable {
 
             String testName = camelCaseToSpaces( test.getName() );
 
-
             if ( shouldBeTested( test ) ) {
 
                 testName = ++id + ": " + testName;
@@ -118,7 +117,12 @@ class TestRunner implements Runnable {
     }
 
     boolean shouldBeTested( Method test ) {
-        return ! test.getName().toLowerCase().startsWith("ignore");
+        boolean notIgnored = ! test.getName().toLowerCase().startsWith("ignore");
+        String returnType = test.getReturnType().getSimpleName().toString();
+        boolean returnsBoolean = returnType.equals("boolean") || returnType.equals("Boolean");
+        boolean hasNoParams = test.getParameterTypes().length == 0;
+
+        return notIgnored && returnsBoolean && hasNoParams;
     }
 
     private boolean performTest(Method test) {
