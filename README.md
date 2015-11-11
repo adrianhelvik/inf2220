@@ -3,7 +3,7 @@ Readme for assignment 3 in INF2220 for Adrian Ødeby Helvik
 
 How to compile and run the program
 ----------------------------------
-make && java AssignmentThree <needle> <haystack>
+make && java AssignmentThree &lt;needle&gt; &lt;haystack&gt;
 
 Note: Add "test" as argument 3 to view test printing
 that visually shows what is happening.
