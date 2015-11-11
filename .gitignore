@@ -1,4 +1,4 @@
-.class
-.swp
-.swo
-.DS_Store
+*.class
+*.swp
+*.swo
+*.DS_Store
