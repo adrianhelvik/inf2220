@@ -54,9 +54,9 @@ is 0 &ndash; which is the default value in an int-array and is the
 value of the last letter in the needle.
 
 Notes on variable names and uses:
-    * base + offset: index in haystack at any point in the search
-    * offset: index in needle at any point in the search
-    * bsc, createBsc: I use bsc as an abbreviation for bad character shift
+- base + offset: index in haystack at any point in the search
+- offset: index in needle at any point in the search
+- bsc, createBsc: I use bsc as an abbreviation for bad character shift
 
 Which file includes the main-method
 -----------------------------------
