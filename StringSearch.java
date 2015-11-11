@@ -41,13 +41,12 @@ public class StringSearch {
     int[] createBcs(char[] needle) {
         int[] bcs = new int[CHAR_MAX];
 
-        bcs['_'] = nlen();
-
-        Set<Character> inNeedle = needleSet();
+        bcs['_'] = needle.length;
 
         // Go through letters of needle
-        for (int i = 0; i < nlen(); i++) {
-            
+        for (int i = 0; i < needle.length; i++) {
+
+            // If test to avoid overwriting '_'
             if (last() - i != 0)
                 bcs[needle[i]] = last() - i;
         }
@@ -55,34 +54,11 @@ public class StringSearch {
         // Go through all possible letters
         for (int i = 0; i < CHAR_MAX; i++) {
 
-            if (! inNeedle.contains((char)i) || bcs[i] == 0)
+            if ( bcs[i] == 0)
                 bcs[i] = bcs['_'];
         }
 
         return bcs;
-    }
-
-    Set<Character> needleSet() {
-        Set<Character> inNeedle = new HashSet<>();
-        
-        for (char ch : needle) {
-            inNeedle.add(ch);
-        }
-
-        return inNeedle;
-    }
-
-    int countWildcardsStart(char[] needle) {
-        int cnt = 0;
-
-        for (char ch : needle) {
-            if ( ch == WILDCARD ) {
-                cnt++;
-            }
-            else break;
-        }
-        
-        return cnt;
     }
 
     List<Integer> search() {
@@ -139,16 +115,14 @@ public class StringSearch {
     // Helpers
     //
 
-    int nlen() { return needle.length; }
-    int hlen() { return haystack.length; }
-    int last() { return nlen() - 1; }
+    int last() { return needle.length - 1; }
     
     /**
      * Verify that the end of a search has been reached based on its base number.
      * Tested
      */
     boolean endReached(int base) {
-        return base + last() >= hlen() || needle.length == 0;
+        return base + last() >= haystack.length || needle.length == 0;
     }
 
     /**
