@@ -12,11 +12,12 @@ public class TestStringSearch {
     boolean
         test_program_execution()
     {
-        AssignmentThree.main(new String[] {"hello", "hello", "test"});
+        AssignmentThree.main(new String[] {"sampleNeedle.txt", "sampleHaystack.txt", "test"});
 
         System.out.println( AssignmentThree._testResults );
 
-        return is(AssignmentThree._testResults.get(0), "hello", "Ran program with testing enabled and the result should contain that");
+        return is(AssignmentThree._testResults.get(0), "hello", "Ran program with testing enabled and the result should contain that")
+            & is(AssignmentThree._testResults.get(15), "halla", "Ran program with testing enabled and the result should contain that");
     }
 
     boolean

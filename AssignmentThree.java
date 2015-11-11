@@ -1,4 +1,5 @@
 import java.util.*;
+import java.io.*;
 
 public class AssignmentThree {
 
@@ -15,8 +16,8 @@ public class AssignmentThree {
             System.exit(0);
         }
 
-        String needle = args[ 0 ];
-        String haystack = args[ 1 ];
+        String needle = readFile( args[ 0 ] );
+        String haystack = readFile( args[ 1 ] );
 
         boolean testing = args.length > 2 && args[2].equals("test");
 
@@ -44,6 +45,23 @@ public class AssignmentThree {
             System.out.print( o + " " );
         }
         System.out.println();
+    }
+
+    static String readFile(String fname) {
+        try {
+        String res = "";
+        File f = new File(fname);
+        Scanner sc = new Scanner(f);
+
+        while (sc.hasNextLine())
+            res += sc.nextLine() + "\n";
+
+        return res.substring(0, res.length() - 1);
+        } catch (Exception e) {
+            System.out.println("Error reading file");
+        }
+
+        return null;
     }
 }
 
