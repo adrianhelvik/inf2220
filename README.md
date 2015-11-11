@@ -50,7 +50,7 @@ offset (too the length of needle).
 
 In createBcs() I first determine the char shift for the letters
 in the needle, and then determine it for all letters whose value
-is 0 -- which is the default value in an int-array and is the
+is 0 &endash; which is the default value in an int-array and is the
 value of the last letter in the needle.
 
 Notes on variable names and uses:
