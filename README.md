@@ -10,8 +10,32 @@ that visually shows what is happening.
 
 How to test
 -----------
-Run the command 'make test'. If you want to disable a test simply
-prefix its name with IGNORE (case insensitive).
+
+### About TestRunner
+TestRunner accepts a class-name as an argument, and ignores
+any methods in the given class that A) don't return boolean
+or Boolean or B) has any arguments. The name of the method
+is converted from camelCase or snake\_case to space separated
+sentences (and numbers are prepended with a space). The tests 
+then start and run whatever code is in the test. If the return
+value is true, the test has passed and the next test will start,
+otherwise a log of the tests and their statuses will be printed.
+Feel free to use it for any purpose. Could be useful for
+assignments.
+
+### Run
+Run the command 'make test'.
+
+### Disable single text
+If you want to disable a test simply prefix its name with
+IGNORE (case insensitive). I prefer IGNORE\_
+
+### What the output should be
+The tests make use of the is-functions, which tests whether
+the first and second arguments are equal and logs it to the
+console. The third argument is a string specifying a reason
+for why the test should return a given value. Needs to be
+implemented into PerformTests though.
 
 Explanation of algorithm
 ------------------------
