@@ -19,9 +19,9 @@ is converted from camelCase or snake\_case to space separated
 sentences (and numbers are prepended with a space). The tests 
 then start and run whatever code is in the test. If the return
 value is true, the test has passed and the next test will start,
-otherwise a log of the tests and their statuses will be printed.
-Feel free to use it for any purpose. Could be useful for
-assignments.
+otherwise a log of the completed tests and their statuses will
+be printed. Feel free to use it for any purpose. Could be
+useful for assignments.
 
 ### Run
 Run the command 'make test'.
